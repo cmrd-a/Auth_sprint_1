@@ -8,7 +8,7 @@ prod_down:
 	docker compose -f docker-compose-databases-prod.yml -f docker-compose.yml down
 
 dev_up:
-	docker compose -f docker-compose-databases.yml -f docker-compose-dev.yml pg_auth up -d
+	docker compose -f docker-compose-databases.yml -f docker-compose-dev.yml up pg_auth redis_auth -d
 
 dev_down:
 	docker compose -f docker-compose-databases.yml -f docker-compose-dev.yml down

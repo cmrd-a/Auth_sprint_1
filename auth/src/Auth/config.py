@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from pydantic import BaseSettings, Field
 
 
@@ -25,3 +27,8 @@ DEBUG = config.flask_debug
 SQLALCHEMY_DATABASE_URI = config.pg_url
 SECRET_KEY = config.secret_key
 SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+REDIS_URL = "redis://localhost:6390"
+JWT_SECRET_KEY = "super-secret"
+JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
+JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
