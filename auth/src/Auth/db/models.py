@@ -1,4 +1,5 @@
 import uuid
+from typing import Optional, Type, TypeVar
 
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy_utils import IPAddressType
@@ -6,6 +7,7 @@ from sqlalchemy_utils import PasswordType, force_auto_coercion
 
 from Auth.extensions import db
 
+T = TypeVar("T", bound="PkModel")
 force_auto_coercion()
 Base = db.declarative_base()
 
@@ -13,6 +15,10 @@ Base = db.declarative_base()
 class PkModel(Base):
     __abstract__ = True
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+
+    @classmethod
+    def get_by_id(cls: Type[T], record_id: UUID) -> Optional[T]:
+        return cls.query.get(record_id)
 
 
 class CreatedUpdatedModel(PkModel):
@@ -58,6 +64,8 @@ class User(CreatedUpdatedModel):
 
 
 class Devices(CreatedUpdatedModel):
+    __tablename__ = "devices"
+
     name = db.Column(db.String(64), index=True, nullable=False)
     fingerprint = db.Column(db.String(256))
     user_id = db.Column(UUID, db.ForeignKey("users.id"), nullable=False)
@@ -66,6 +74,8 @@ class Devices(CreatedUpdatedModel):
 
 
 class LoginHistory(CreatedUpdatedModel):
+    __tablename__ = "login_history"
+
     user_id = db.Column(UUID, db.ForeignKey("users.id"), nullable=False)
     device_id = db.Column(UUID, db.ForeignKey("devices.id"))
     ip_address = db.Column(IPAddressType)

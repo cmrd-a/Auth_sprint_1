@@ -20,4 +20,4 @@ services:
 
   redis_auth:
     ports:
-      - "6379:6390"
+      - "6390:6379"
