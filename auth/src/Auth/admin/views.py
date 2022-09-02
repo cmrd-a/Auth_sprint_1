@@ -1,13 +1,14 @@
 from http import HTTPStatus
 
-from flask import Blueprint, request
+from apiflask import APIBlueprint
 from flask import abort
+from flask import request
 from sqlalchemy.exc import IntegrityError
 
 from Auth.db.models import Role, Permission
 from Auth.extensions import db
 
-blueprint = Blueprint("admin", __name__, url_prefix="/admin")
+blueprint = APIBlueprint("admin", __name__, url_prefix="/admin")
 
 
 @blueprint.post("/create_role")

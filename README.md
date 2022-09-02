@@ -21,6 +21,10 @@ API доступно по адресу: http://localhost/api/openapi.
  1. `cp tests/functional/.env.example tests/functional/.env`
  2. `make tests_up`
 
+# Auth. Система авторизации
+
+http://localhost:5000/docs
+
 ### Команды для разработки:
  - `make dev_up` - поднять только БД с открытыми портами.
  - `make black` - отформатировать код.

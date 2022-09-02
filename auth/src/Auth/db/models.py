@@ -1,7 +1,5 @@
-import uuid
 from typing import Optional, Type, TypeVar
 
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy_utils import IPAddressType, PasswordType, force_auto_coercion
 
 from Auth.extensions import db
@@ -12,10 +10,10 @@ force_auto_coercion()
 
 class PkModel(db.Model):
     __abstract__ = True
-    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = db.Column(db.Integer, primary_key=True)
 
     @classmethod
-    def get_by_id(cls: Type[T], record_id: UUID) -> Optional[T]:
+    def get_by_id(cls: Type[T], record_id: int) -> Optional[T]:
         return cls.query.get(record_id)
 
 
@@ -56,27 +54,16 @@ class User(CreatedUpdatedModel):
         nullable=False,
     )
     is_active = db.Column(db.Boolean, default=True, nullable=False)
-    role_id = db.Column(UUID, db.ForeignKey("roles.id"), nullable=False)
+    role_id = db.Column(db.Integer, db.ForeignKey("roles.id"), nullable=False)
 
     role = db.relationship("Role")
 
 
-class Devices(CreatedUpdatedModel):
-    __tablename__ = "devices"
-
-    name = db.Column(db.String(64), index=True, nullable=False)
-    fingerprint = db.Column(db.String(256))
-    user_id = db.Column(UUID, db.ForeignKey("users.id"), nullable=False)
-
-    user = db.relationship("User")
-
-
-class LoginHistory(CreatedUpdatedModel):
+class LoginHistory(PkModel):
     __tablename__ = "login_history"
 
-    user_id = db.Column(UUID, db.ForeignKey("users.id"), nullable=False)
-    device_id = db.Column(UUID, db.ForeignKey("devices.id"))
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     ip_address = db.Column(IPAddressType)
+    login_time = db.Column(db.DateTime, default=db.func.now())
 
     user = db.relationship("User")
-    device = db.relationship("Devices")
