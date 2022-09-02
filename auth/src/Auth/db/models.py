@@ -2,17 +2,15 @@ import uuid
 from typing import Optional, Type, TypeVar
 
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy_utils import IPAddressType
-from sqlalchemy_utils import PasswordType, force_auto_coercion
+from sqlalchemy_utils import IPAddressType, PasswordType, force_auto_coercion
 
 from Auth.extensions import db
 
 T = TypeVar("T", bound="PkModel")
 force_auto_coercion()
-Base = db.declarative_base()
 
 
-class PkModel(Base):
+class PkModel(db.Model):
     __abstract__ = True
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
@@ -30,7 +28,7 @@ class CreatedUpdatedModel(PkModel):
 
 roles_permissions = db.Table(
     "roles_permissions",
-    Base.metadata,
+    db.metadata,
     db.Column("permission_id", db.ForeignKey("permissions.id"), primary_key=True),
     db.Column("role_id", db.ForeignKey("roles.id"), primary_key=True),
 )

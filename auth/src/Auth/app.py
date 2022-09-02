@@ -1,8 +1,6 @@
 from flask import Flask
 
 from Auth import user, admin
-from Auth.db.common import engine
-from Auth.db.models import Base
 from Auth.extensions import db, jwt, redis_client
 
 
@@ -12,7 +10,8 @@ def create_app(config_object="Auth.config"):
 
     register_extensions(app)
 
-    Base.metadata.create_all(engine)
+    app.app_context().push()
+    db.create_all()
 
     register_blueprints(app)
     return app
