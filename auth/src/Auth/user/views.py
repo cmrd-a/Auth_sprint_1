@@ -1,38 +1,56 @@
-from flask import Blueprint, request, jsonify
+from http import HTTPStatus
+
+from apiflask import APIBlueprint, abort
+from flask import jsonify, Response, request
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity, get_jwt
 
 from Auth.config import JWT_ACCESS_TOKEN_EXPIRES
-from Auth.extensions import redis_client, jwt
+from Auth.db.models import Role, User, LoginHistory
+from Auth.extensions import db, redis_client
+from Auth.user.schemas import LoginOut, EmailPasswordIn, ChangePasswordIn, AccessToken, LoginHistoryOut
 
-blueprint = Blueprint("user", __name__, url_prefix="/users")
-
-
-@jwt.token_in_blocklist_loader
-def check_if_token_is_revoked(jwt_header, jwt_payload: dict) -> bool:
-    jti = jwt_payload["jti"]
-    token_in_redis = redis_client.get(jti)
-    return token_in_redis is not None
+blueprint = APIBlueprint("user", __name__, url_prefix="/users")
 
 
 @blueprint.post("/register")
-def register():
-    pass
+@blueprint.input(EmailPasswordIn)
+def register(body):
+    email = body["email"]
+    password = body["password"]
+    if User.query.filter_by(email=email).first():
+        return abort(HTTPStatus.BAD_REQUEST, message="Bad username or password")
+    role = Role.query.filter_by(name="registered").first()
+    new_user = User(email=email, password=password, role=role)
+    db.session.add(new_user)
+    db.session.commit()
+    return Response(status=HTTPStatus.CREATED)
 
 
 @blueprint.post("/login")
-def login():
-    username = request.json.get("email")
-    password = request.json.get("password")
-    if username != "test" or password != "test":
-        return jsonify({"msg": "Bad username or password"}), 401
+@blueprint.input(EmailPasswordIn)
+@blueprint.output(LoginOut)
+def login(body):
+    email = body["email"]
+    password = body["password"]
+    user = User.query.filter_by(email=email).first()
+    if user and user.password == password:
+        db.session.add(LoginHistory(user=user, ip_address=request.remote_addr))
+        db.session.commit()
+        access_token = create_access_token(identity=email, fresh=True)
+        refresh_token = create_refresh_token(identity=email)
+        return jsonify(
+            access_token=access_token,
+            refresh_token=refresh_token,
+            access_expires=str(JWT_ACCESS_TOKEN_EXPIRES),
+            user_role=user.role.name,
+        )
 
-    access_token = create_access_token(identity=username, fresh=True)
-    refresh_token = create_refresh_token(identity=username)
-    return jsonify(access_token=access_token, refresh_token=refresh_token, access_expires=str(JWT_ACCESS_TOKEN_EXPIRES))
+    return abort(HTTPStatus.BAD_REQUEST, message="Bad username or password")
 
 
 @blueprint.post("/refresh")
 @jwt_required(refresh=True)
+@blueprint.output(AccessToken)
 def refresh():
     identity = get_jwt_identity()
     access_token = create_access_token(identity=identity, fresh=False)
@@ -52,12 +70,23 @@ def logout():
 
 @blueprint.post("/change-password")
 @jwt_required(fresh=True)
-def change_password():
-    pass
+@blueprint.input(ChangePasswordIn)
+def change_password(body):
+    current_password = body["current_password"]
+    new_password = body["new_password"]
+    email = get_jwt_identity()
+    user = User.query.filter_by(email=email).first()
+    if user and user.password == current_password:
+        user.password = new_password
+        db.session.commit()
+        return Response(status=HTTPStatus.OK)
+    return abort(HTTPStatus.BAD_REQUEST)
 
 
 @blueprint.get("/login-history")
 @jwt_required()
+@blueprint.output(LoginHistoryOut(many=True))
 def login_history():
-    current_user = get_jwt_identity()
-    return jsonify(logged_in_as=current_user), 200
+    email = get_jwt_identity()
+    result = LoginHistory.query.filter_by(user=User.query.filter_by(email=email).first()).all()
+    return jsonify([dict(ip_address=str(r.ip_address), login_time=str(r.login_time)) for r in result])

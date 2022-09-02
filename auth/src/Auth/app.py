@@ -1,11 +1,11 @@
-from flask import Flask
+from apiflask import APIFlask
 
 from Auth import user, admin
 from Auth.extensions import db, jwt, redis_client
 
 
 def create_app(config_object="Auth.config"):
-    app = Flask(__name__)
+    app = APIFlask(__name__, title="Auth API", version="1.0")
     app.config.from_object(config_object)
 
     register_extensions(app)
