@@ -1,10 +1,9 @@
 from http import HTTPStatus
 
 from apiflask import APIBlueprint, abort
-from flask import jsonify, Response, request
+from flask import jsonify, Response, request, current_app
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity, get_jwt
 
-from Auth.config import JWT_ACCESS_TOKEN_EXPIRES
 from Auth.db.models import Role, User, LoginHistory
 from Auth.extensions import db, redis_client
 from Auth.user.schemas import LoginOut, EmailPasswordIn, ChangePasswordIn, AccessToken, LoginHistoryOut
@@ -41,7 +40,7 @@ def login(body):
         return jsonify(
             access_token=access_token,
             refresh_token=refresh_token,
-            access_expires=str(JWT_ACCESS_TOKEN_EXPIRES),
+            access_expires=str(current_app.config["JWT_ACCESS_TOKEN_EXPIRES"]),
             user_role=user.role.name,
         )
 
@@ -63,7 +62,7 @@ def logout():
     token = get_jwt()
     jti = token["jti"]
     ttype = token["type"]
-    redis_client.set(jti, "", ex=JWT_ACCESS_TOKEN_EXPIRES)
+    redis_client.set(jti, "", ex=current_app.config["JWT_ACCESS_TOKEN_EXPIRES"])
 
     return jsonify(msg=f"{ttype.capitalize()} token successfully revoked")
 
@@ -89,4 +88,4 @@ def change_password(body):
 def login_history():
     email = get_jwt_identity()
     result = LoginHistory.query.filter_by(user=User.query.filter_by(email=email).first()).all()
-    return jsonify([dict(ip_address=str(r.ip_address), login_time=str(r.login_time)) for r in result])
+    return jsonify([{"ip_address": str(r.ip_address), "login_time": str(r.login_time)} for r in result])
