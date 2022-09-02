@@ -70,7 +70,7 @@ class Devices(CreatedUpdatedModel):
     fingerprint = db.Column(db.String(256))
     user_id = db.Column(UUID, db.ForeignKey("users.id"), nullable=False)
 
-    user = db.relationship("Users")
+    user = db.relationship("User")
 
 
 class LoginHistory(CreatedUpdatedModel):
@@ -80,5 +80,5 @@ class LoginHistory(CreatedUpdatedModel):
     device_id = db.Column(UUID, db.ForeignKey("devices.id"))
     ip_address = db.Column(IPAddressType)
 
-    user = db.relationship("Users")
+    user = db.relationship("User")
     device = db.relationship("Devices")

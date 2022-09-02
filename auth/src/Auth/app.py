@@ -1,6 +1,6 @@
 from flask import Flask
 
-from Auth import user
+from Auth import user, admin
 from Auth.db.common import engine
 from Auth.db.models import Base
 from Auth.extensions import db, jwt, redis_client
@@ -26,3 +26,4 @@ def register_extensions(app):
 
 def register_blueprints(app):
     app.register_blueprint(user.views.blueprint)
+    app.register_blueprint(admin.views.blueprint)
