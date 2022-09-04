@@ -35,7 +35,9 @@ def login(body):
     if user and user.password == password:
         db.session.add(LoginHistory(user=user, ip_address=request.remote_addr))
         db.session.commit()
-        access_token = create_access_token(identity=email, fresh=True)
+        access_token = create_access_token(
+            identity=email, fresh=True, additional_claims={"permissions": [p.name for p in user.role.permissions]}
+        )
         refresh_token = create_refresh_token(identity=email)
         return jsonify(
             access_token=access_token,
@@ -44,7 +46,7 @@ def login(body):
             user_role=user.role.name,
         )
 
-    return abort(HTTPStatus.BAD_REQUEST, message="Bad username or password")
+    return abort(HTTPStatus.UNAUTHORIZED, message="Bad username or password")
 
 
 @blueprint.post("/refresh")

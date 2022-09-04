@@ -71,7 +71,9 @@ def change_role(body):
         changed_role = Role(name=new_role_name, id=old_role_id)
 
         for permission in new_role_permissions:
-            changed_role.permissions.append(db.session().query(Permission).filter(Permission.name == permission).first())
+            changed_role.permissions.append(
+                db.session().query(Permission).filter(Permission.name == permission).first()
+            )
         db.session.add(changed_role)
         db.session.commit()
     except IntegrityError:
