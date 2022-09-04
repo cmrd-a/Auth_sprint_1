@@ -11,7 +11,7 @@ from Auth.user.schemas import LoginOut, EmailPasswordIn, ChangePasswordIn, Acces
 blueprint = APIBlueprint("user", __name__, url_prefix="/users")
 
 
-@blueprint.post("/register")
+@blueprint.post("/v1/register")
 @blueprint.input(EmailPasswordIn)
 def register(body):
     email = body["email"]
@@ -25,7 +25,7 @@ def register(body):
     return Response(status=HTTPStatus.CREATED)
 
 
-@blueprint.post("/login")
+@blueprint.post("/v1/login")
 @blueprint.input(EmailPasswordIn)
 @blueprint.output(LoginOut)
 def login(body):
@@ -49,7 +49,7 @@ def login(body):
     return abort(HTTPStatus.UNAUTHORIZED, message="Bad username or password")
 
 
-@blueprint.post("/refresh")
+@blueprint.post("/v1/refresh")
 @jwt_required(refresh=True)
 @blueprint.output(AccessToken)
 def refresh():
@@ -58,7 +58,7 @@ def refresh():
     return jsonify(access_token=access_token)
 
 
-@blueprint.delete("/logout")
+@blueprint.delete("/v1/logout")
 @jwt_required(verify_type=False)
 def logout():
     token = get_jwt()
@@ -69,7 +69,7 @@ def logout():
     return jsonify(msg=f"{ttype.capitalize()} token successfully revoked")
 
 
-@blueprint.post("/change-password")
+@blueprint.post("/v1/change-password")
 @jwt_required(fresh=True)
 @blueprint.input(ChangePasswordIn)
 def change_password(body):
@@ -84,7 +84,7 @@ def change_password(body):
     return abort(HTTPStatus.BAD_REQUEST)
 
 
-@blueprint.get("/login-history")
+@blueprint.get("/v1/login-history")
 @jwt_required()
 @blueprint.output(LoginHistoryOut(many=True))
 def login_history():

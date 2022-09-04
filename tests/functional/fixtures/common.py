@@ -69,3 +69,11 @@ def make_get_request(http_session):
         return await http_get_request(http_session, method, params)
 
     return inner
+
+
+@pytest_asyncio.fixture
+def make_post_request(http_session):
+    async def inner(method: str, body: dict) -> HTTPResponse:
+        return await http_get_request(http_session, method, body)
+
+    return inner

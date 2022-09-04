@@ -20,7 +20,7 @@ blueprint = APIBlueprint("admin", __name__, url_prefix="/admin")
 
 
 @permissions_required(["manage_users"])
-@blueprint.post("/create-role")
+@blueprint.post("/v1/create-role")
 @blueprint.input(CreateRoleIn)
 @blueprint.output(CreateRoleOut)
 def create_role(body):
@@ -40,7 +40,7 @@ def create_role(body):
 
 
 @permissions_required(["manage_users"])
-@blueprint.delete("/delete-role")
+@blueprint.delete("/v1/delete-role")
 @blueprint.input(DeleteRoleIn)
 def delete_role(body):
     role_name = body["role_name"]
@@ -60,7 +60,7 @@ def delete_role(body):
 
 
 @permissions_required(["manage_users"])
-@blueprint.post("/change-role")
+@blueprint.post("/v1/change-role")
 @blueprint.input(ChangeRoleIn)
 def change_role(body):
     old_role_name = body["old_role_name"]
@@ -89,7 +89,7 @@ def change_role(body):
 
 
 @permissions_required(["manage_users"])
-@blueprint.get("/get-all-roles")
+@blueprint.get("/v1/get-all-roles")
 @blueprint.output(GetAllRolesOut(many=True))
 def get_all_roles():
     response = []
@@ -101,7 +101,7 @@ def get_all_roles():
 
 
 @permissions_required(["manage_users"])
-@blueprint.post("/set-user-role")
+@blueprint.post("/v1/set-user-role")
 @blueprint.input(SetUserRoleIn)
 def set_user_role(body):
 
