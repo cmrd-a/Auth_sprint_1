@@ -2,25 +2,21 @@ from apiflask import Schema
 from apiflask.fields import String, List, Integer
 
 
-class CreateRoleRequest(Schema):
+class CreateRoleIn(Schema):
     role_name = String(required=True)
     permissions = List(String(required=True))
 
 
-class CreateRoleResponse(Schema):
+class CreateRoleOut(Schema):
     role_id = Integer(required=True)
     role_name = String(required=True)
 
 
-class DeleteRoleRequest(Schema):
+class DeleteRoleIn(Schema):
     role_name = String(required=True)
 
 
-class DeleteRoleResponse(Schema):
-    deleted_role_id = Integer(required=True)
-
-
-class ChangeRoleRequest(Schema):
+class ChangeRoleIn(Schema):
     old_role_name = String(required=True)
     new_role_name = String(required=True)
     new_role_permissions = List(String(required=True))
