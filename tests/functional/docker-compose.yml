@@ -11,6 +11,19 @@ services:
   redis:
     image: redis:7.0.4
 
+  postgres:
+    image: postgres:14.3
+    env_file:
+      - .env
+
+  auth:
+    build: ../../auth/
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
+
   fastapi_app:
     build: ../../fastapi_app/
     env_file:

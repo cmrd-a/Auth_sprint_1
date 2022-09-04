@@ -4,15 +4,16 @@ from apiflask import APIBlueprint, abort
 from flask import jsonify, Response, request, current_app
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity, get_jwt
 
-from Auth.db.models import Role, User, LoginHistory
-from Auth.extensions import db, redis_client
-from Auth.user.schemas import LoginOut, EmailPasswordIn, ChangePasswordIn, AccessToken, LoginHistoryOut
+from db.models import Role, User, LoginHistory
+from extensions import db, redis_client
+from user.schemas import LoginOut, EmailPasswordIn, ChangePasswordIn, AccessToken, LoginHistoryOut
 
 blueprint = APIBlueprint("user", __name__, url_prefix="/users")
 
 
 @blueprint.post("/v1/register")
 @blueprint.input(EmailPasswordIn)
+@blueprint.output({})
 def register(body):
     email = body["email"]
     password = body["password"]
@@ -22,7 +23,6 @@ def register(body):
     new_user = User(email=email, password=password, role=role)
     db.session.add(new_user)
     db.session.commit()
-    return Response(status=HTTPStatus.CREATED)
 
 
 @blueprint.post("/v1/login")

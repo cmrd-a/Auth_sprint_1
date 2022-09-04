@@ -1,7 +1,9 @@
 from apiflask import APIFlask
 
-from Auth import user, admin, commands
-from Auth.extensions import db, jwt, redis_client
+import admin
+import commands
+import user
+from extensions import db, jwt, redis_client
 
 
 def create_app(config_object="Auth.config.config"):

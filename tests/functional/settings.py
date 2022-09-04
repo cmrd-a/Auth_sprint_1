@@ -8,8 +8,8 @@ class Settings(BaseSettings):
     redis_host: str = Field(env="REDIS_HOST", default="redis://localhost")
     redis_port: int = Field(env="REDIS_PORT", default=6379)
 
-    service_host: str = Field(env="SERVICE_HOST", default="http://localhost")
-    service_port: int = Field(env="SERVICE_PORT", default=8000)
+    fastapi_host: str = Field(env="FASTAPI_HOST", default="http://localhost")
+    fastapi_port: int = Field(env="FASTAPI_PORT", default=5000)
 
     @property
     def es_url(self):
@@ -20,8 +20,8 @@ class Settings(BaseSettings):
         return f"{self.redis_host}:{self.redis_port}"
 
     @property
-    def service_url(self):
-        return f"{self.service_host}:{self.service_port}"
+    def fastapi_url(self):
+        return f"{self.fastapi_host}:{self.fastapi_port}"
 
 
 settings = Settings()

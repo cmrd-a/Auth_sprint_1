@@ -1,8 +1,7 @@
 from dataclasses import dataclass
 
+from aiohttp import ClientSession
 from multidict import CIMultiDictProxy
-
-from settings import settings
 
 
 @dataclass
@@ -12,10 +11,8 @@ class HTTPResponse:
     status: int
 
 
-async def http_get_request(http_session, method: str, params: dict | None) -> HTTPResponse:
-    params = params or {}
-    url = f"{settings.service_url}/api{method}"
-    async with http_session.get(url, params=params) as response:
+async def http_request(http_session: ClientSession, method: str, url: str, **kwargs) -> HTTPResponse:
+    async with http_session.request(method, url, **kwargs) as response:
         return HTTPResponse(
             body=await response.json(),
             headers=response.headers,

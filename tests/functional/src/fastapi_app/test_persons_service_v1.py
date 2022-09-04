@@ -2,9 +2,11 @@ from http import HTTPStatus
 
 import pytest
 
+from settings import settings
+
 
 @pytest.mark.asyncio
-async def test_person_by_id__person_present__return_person(make_get_request, create_persons, create_movies):
+async def test_person_by_id__person_present__return_person(make_request, create_persons, create_movies):
     # arrange
     expected_result = {
         "id": "1",
@@ -16,16 +18,16 @@ async def test_person_by_id__person_present__return_person(make_get_request, cre
     }
 
     # act
-    response = await make_get_request("/v1/persons/1")
+    response = await make_request("GET", f"{settings.fastapi_url}/api/v1/persons/1")
 
     # assert
     assert response.body == expected_result
 
 
 @pytest.mark.asyncio
-async def test_person_by_id__no_person__return_status_404(make_get_request, create_persons, create_movies):
+async def test_person_by_id__no_person__return_status_404(make_request, create_persons, create_movies):
     # act
-    response = await make_get_request("/v1/persons/100")
+    response = await make_request("GET", f"{settings.fastapi_url}/api/v1/persons/100")
 
     # assert
     assert response.body["detail"] == "person not found"
@@ -33,7 +35,7 @@ async def test_person_by_id__no_person__return_status_404(make_get_request, crea
 
 
 @pytest.mark.asyncio
-async def test_film_details_by_person__films_present__return_details(make_get_request, create_persons, create_movies):
+async def test_film_details_by_person__films_present__return_details(make_request, create_persons, create_movies):
     # arrange
     expected_result = {
         "films": [
@@ -43,16 +45,16 @@ async def test_film_details_by_person__films_present__return_details(make_get_re
     }
 
     # act
-    response = await make_get_request("/v1/persons/1/film")
+    response = await make_request("GET", f"{settings.fastapi_url}/api/v1/persons/1/film")
 
     # assert
     assert response.body == expected_result
 
 
 @pytest.mark.asyncio
-async def test_film_details_by_person__no_films__return_status_404(make_get_request, create_persons, create_movies):
+async def test_film_details_by_person__no_films__return_status_404(make_request, create_persons, create_movies):
     # act
-    response = await make_get_request("/v1/persons/100/film")
+    response = await make_request("GET", f"{settings.fastapi_url}/api/v1/persons/100/film")
 
     # assert
     assert response.body["detail"] == "film details not found"
@@ -60,7 +62,7 @@ async def test_film_details_by_person__no_films__return_status_404(make_get_requ
 
 
 @pytest.mark.asyncio
-async def test_persons_search__person_present__return_persons(make_get_request, create_persons, create_movies):
+async def test_persons_search__person_present__return_persons(make_request, create_persons, create_movies):
     # arrange
     expected_result = {
         "total": 3,
@@ -106,16 +108,18 @@ async def test_persons_search__person_present__return_persons(make_get_request, 
     }
 
     # act
-    response = await make_get_request("/v1/persons/search", {"query": "Igor"})
+    response = await make_request("GET", f"{settings.fastapi_url}/api/v1/persons/search", params={"query": "Igor"})
 
     # assert
     assert response.body == expected_result
 
 
 @pytest.mark.asyncio
-async def test_persons_search__no_persons__return_status_404(make_get_request, create_persons, create_movies):
+async def test_persons_search__no_persons__return_status_404(make_request, create_persons, create_movies):
     # act
-    response = await make_get_request("/v1/persons/search", {"query": "Korpiklaani"})
+    response = await make_request(
+        "GET", f"{settings.fastapi_url}/api/v1/persons/search", params={"query": "Korpiklaani"}
+    )
 
     # assert
     assert response.body["detail"] == "persons not found"
@@ -125,11 +129,12 @@ async def test_persons_search__no_persons__return_status_404(make_get_request, c
 @pytest.mark.asyncio
 @pytest.mark.parametrize("page_size", (1, 2, 3))
 async def test_persons_search__send_page_size__return_correct_lens(
-    make_get_request, create_persons, create_movies, page_size
+    make_request, create_persons, create_movies, page_size
 ):
-    response = await make_get_request(
-        "/v1/persons/search",
-        {"query": "Igor", "page[size]": page_size},
+    response = await make_request(
+        "GET",
+        f"{settings.fastapi_url}/api/v1/persons/search",
+        params={"query": "Igor", "page[size]": page_size},
     )
 
     assert response.status == HTTPStatus.OK

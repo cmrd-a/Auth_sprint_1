@@ -1,5 +1,4 @@
 import asyncio
-from typing import Optional
 
 import aioredis
 import pytest_asyncio
@@ -8,7 +7,7 @@ from elasticsearch import AsyncElasticsearch
 
 from settings import settings
 from testdata.es_indexes import INDEXES
-from utils.requests import HTTPResponse, http_get_request
+from utils.requests import HTTPResponse, http_request
 
 
 @pytest_asyncio.fixture(name="redis_client", scope="session")
@@ -64,16 +63,8 @@ async def create_indexes(es_client):
 
 
 @pytest_asyncio.fixture
-def make_get_request(http_session):
-    async def inner(method: str, params: Optional[dict] = None) -> HTTPResponse:
-        return await http_get_request(http_session, method, params)
-
-    return inner
-
-
-@pytest_asyncio.fixture
-def make_post_request(http_session):
-    async def inner(method: str, body: dict) -> HTTPResponse:
-        return await http_get_request(http_session, method, body)
+def make_request(http_session):
+    async def inner(method: str, url: str, **kwargs) -> HTTPResponse:
+        return await http_request(http_session, method, url, **kwargs)
 
     return inner
