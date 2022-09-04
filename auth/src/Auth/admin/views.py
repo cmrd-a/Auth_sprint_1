@@ -9,14 +9,18 @@ from Auth.admin.schemas import (
     CreateRoleOut,
     DeleteRoleIn,
     ChangeRoleIn,
+    GetAllRolesOut,
+    SetUserRoleIn,
 )
-from Auth.db.models import Role, Permission
+from Auth.db.models import Role, Permission, User
 from Auth.extensions import db
+from Auth.user.utils import permissions_required
 
 blueprint = APIBlueprint("admin", __name__, url_prefix="/admin")
 
 
-@blueprint.post("/create_role")
+@permissions_required(["manage_users"])
+@blueprint.post("/create-role")
 @blueprint.input(CreateRoleIn)
 @blueprint.output(CreateRoleOut)
 def create_role(body):
@@ -35,7 +39,8 @@ def create_role(body):
     return jsonify(role_id=role.id, role_name=role_name), HTTPStatus.CREATED
 
 
-@blueprint.delete("/delete_role")
+@permissions_required(["manage_users"])
+@blueprint.delete("/delete-role")
 @blueprint.input(DeleteRoleIn)
 def delete_role(body):
     role_name = body["role_name"]
@@ -54,7 +59,8 @@ def delete_role(body):
     return Response(status=HTTPStatus.OK)
 
 
-@blueprint.post("/change_role")
+@permissions_required(["manage_users"])
+@blueprint.post("/change-role")
 @blueprint.input(ChangeRoleIn)
 def change_role(body):
     old_role_name = body["old_role_name"]
@@ -78,5 +84,43 @@ def change_role(body):
         db.session.commit()
     except IntegrityError:
         return abort(HTTPStatus.INTERNAL_SERVER_ERROR, f"Ошибка при изменении роли {old_role_name}.")
+
+    return Response(status=HTTPStatus.OK)
+
+
+@permissions_required(["manage_users"])
+@blueprint.get("/get-all-roles")
+@blueprint.output(GetAllRolesOut(many=True))
+def get_all_roles():
+    response = []
+    all_roles = db.session().query(Role).all()
+    for role in all_roles:
+        response.append({"name": role.name, "permissions": [permission.name for permission in role.permissions]})
+
+    return jsonify(response)
+
+
+@permissions_required(["manage_users"])
+@blueprint.post("/set-user-role")
+@blueprint.input(SetUserRoleIn)
+def set_user_role(body):
+
+    user_email = body["email"]
+    new_user_role = body["role"]
+
+    try:
+        user = db.session().query(User).filter(User.email == user_email).first()
+        role = db.session().query(Role).filter(Role.name == new_user_role).first()
+
+        if not user:
+            return abort(HTTPStatus.BAD_REQUEST, f"Пользователь с почтой {user_email} не найден.")
+
+        user.role = role
+
+        db.session.add(user)
+        db.session.commit()
+
+    except IntegrityError:
+        return abort(HTTPStatus.INTERNAL_SERVER_ERROR, f"Ошибка при назначении роли {new_user_role}.")
 
     return Response(status=HTTPStatus.OK)
