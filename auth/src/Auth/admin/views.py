@@ -4,7 +4,7 @@ from apiflask import APIBlueprint, abort
 from flask import jsonify, Response
 from sqlalchemy.exc import IntegrityError
 
-from admin.schemas import (
+from Auth.admin.schemas import (
     CreateRoleIn,
     CreateRoleOut,
     DeleteRoleIn,
@@ -12,11 +12,11 @@ from admin.schemas import (
     GetAllRolesOut,
     SetUserRoleIn,
 )
-from db.models import Role, Permission, User
-from extensions import db
-from user.utils import permissions_required
+from Auth.db.models import Role, Permission, User
+from Auth.extensions import db
+from Auth.user.utils import permissions_required
 
-blueprint = APIBlueprint("admin", __name__, url_prefix="/admin")
+blueprint = APIBlueprint("admin", __name__, url_prefix="/auth/admin")
 
 
 @permissions_required(["manage_users"])

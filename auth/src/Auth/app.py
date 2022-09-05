@@ -1,20 +1,16 @@
 from apiflask import APIFlask
 
-import admin
-import commands
-import user
-from extensions import db, jwt, redis_client
+from Auth import admin, commands, user
+from Auth.extensions import db, jwt, redis_client
 
 
 def create_app(config_object="Auth.config.config"):
-    app = APIFlask(__name__, title="Auth API", version="1.0")
+    app = APIFlask(
+        __name__, title="Auth API", root_path="/auth", spec_path="/auth/openapi.json", docs_path="/auth/docs"
+    )
     app.config.from_object(config_object)
 
     register_extensions(app)
-
-    app.app_context().push()
-    db.create_all()
-
     register_blueprints(app)
     register_commands(app)
     return app

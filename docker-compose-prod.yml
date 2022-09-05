@@ -8,8 +8,8 @@ services:
     env_file:
       - .env
     depends_on:
-      - postgres
-      - elastic
+      - pg_movies
+      - elastic_api
     volumes:
       - etl_state:/opt/app/state
 
@@ -20,7 +20,7 @@ services:
     env_file:
       - .env
     depends_on:
-      - postgres
+      - pg_movies
 
   fastapi_app:
     build:
@@ -28,8 +28,17 @@ services:
     env_file:
       - .env
     depends_on:
-      - elastic
-      - redis
+      - elastic_api
+      - redis_api
+
+  auth:
+    build:
+      context: auth
+    env_file:
+      - auth.env
+    depends_on:
+      - pg_auth
+      - redis_auth
 
   nginx:
     image: nginx:1.22
@@ -43,8 +52,8 @@ services:
     depends_on:
       - django_admin_panel
       - fastapi_app
+      - auth
 
 volumes:
   etl_state:
   static:
-

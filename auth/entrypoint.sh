@@ -1,10 +1,9 @@
 #!/bin/bash
-
 echo "Waiting for postgres..."
-    while ! nc -z "$POSTGRES_DB_PORT" "$POSTGRES_DB_PORT"; do
+    while ! nc -z "$POSTGRES_DB_HOST" "$POSTGRES_DB_PORT"; do
       sleep 0.1
     done
 echo "PostgreSQL started"
 
-gunicorn -k gevent -w 4 wsgi_app:create_app --chdir src/Auth --bind 0.0.0.0:8000
-#flask --app src/Auth.app run
+flask --app src/Auth.app create-superuser "$AUTH_SUPERUSER_EMAIL" "$AUTH_SUPERUSER_PASSWORD"
+gunicorn -k gevent -w 8 "Auth.wsgi_app:create_app()" --chdir src --bind 0.0.0.0:9000

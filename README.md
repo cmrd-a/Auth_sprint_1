@@ -11,7 +11,8 @@ https://github.com/cmrd-a/Auth_sprint_1
 
 ### Запуск сервисов:
  1. `cp .env.example .env`
- 2. `make prod_up`
+ 2. `cp auth.env.example auth.env`
+ 3. `make prod_up`
 
 API доступно по адресу: http://localhost/api/openapi.
 
@@ -23,7 +24,7 @@ API доступно по адресу: http://localhost/api/openapi.
 
 # Auth. Система авторизации
 
-http://localhost:5000/docs
+http://localhost/auth/docs
 
 ### Команды для разработки:
  - `make dev_up` - поднять только БД с открытыми портами.

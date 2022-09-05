@@ -1,14 +1,14 @@
 from http import HTTPStatus
 
 from apiflask import APIBlueprint, abort
-from flask import jsonify, Response, request, current_app
+from flask import jsonify, request, current_app
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity, get_jwt
 
-from db.models import Role, User, LoginHistory
-from extensions import db, redis_client
-from user.schemas import LoginOut, EmailPasswordIn, ChangePasswordIn, AccessToken, LoginHistoryOut
+from Auth.db.models import Role, User, LoginHistory
+from Auth.extensions import db, redis_client
+from Auth.user.schemas import LoginOut, EmailPasswordIn, ChangePasswordIn, AccessToken, LoginHistoryOut
 
-blueprint = APIBlueprint("user", __name__, url_prefix="/users")
+blueprint = APIBlueprint("user", __name__, url_prefix="/auth/users")
 
 
 @blueprint.post("/v1/register")
@@ -72,6 +72,7 @@ def logout():
 @blueprint.post("/v1/change-password")
 @jwt_required(fresh=True)
 @blueprint.input(ChangePasswordIn)
+@blueprint.output({})
 def change_password(body):
     current_password = body["current_password"]
     new_password = body["new_password"]
@@ -80,7 +81,7 @@ def change_password(body):
     if user and user.password == current_password:
         user.password = new_password
         db.session.commit()
-        return Response(status=HTTPStatus.OK)
+        return
     return abort(HTTPStatus.BAD_REQUEST)
 
 

@@ -2,8 +2,7 @@ from http import HTTPStatus
 
 import pytest
 from settings import settings
-
-from tests.functional.utils.data_gen import gen_email
+from utils.data_gen import gen_email
 
 
 @pytest.mark.asyncio

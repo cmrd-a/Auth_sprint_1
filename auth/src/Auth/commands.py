@@ -1,13 +1,15 @@
 import click
 
-from db.models import Permission, Role, User
-from extensions import db
+from Auth.db.models import Permission, Role, User
+from Auth.extensions import db
 
 
 @click.command()
 @click.argument("email")
 @click.argument("password")
 def create_superuser(email, password):
+    db.create_all()
+
     base_roles = {
         "registered": ["comment"],
         "superuser": ["comment", "manage_users", "watch_new_movies"],

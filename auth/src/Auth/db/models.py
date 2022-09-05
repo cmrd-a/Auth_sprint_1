@@ -2,7 +2,7 @@ from typing import Optional, Type, TypeVar
 
 from sqlalchemy_utils import IPAddressType, PasswordType, force_auto_coercion
 
-from extensions import db
+from Auth.extensions import db
 
 T = TypeVar("T", bound="PkModel")
 force_auto_coercion()
