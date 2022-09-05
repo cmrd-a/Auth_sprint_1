@@ -17,3 +17,7 @@ def gen_films(quantity=100) -> Generator[dict, None, None]:
             "_index": "movies",
             "_source": doc.json(),
         }
+
+
+def gen_email() -> str:
+    return f"{fake.word()}@gmail.com"

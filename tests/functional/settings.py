@@ -11,6 +11,9 @@ class Settings(BaseSettings):
     fastapi_host: str = Field(env="FASTAPI_HOST", default="http://localhost")
     fastapi_port: int = Field(env="FASTAPI_PORT", default=5000)
 
+    flask_host: str = Field(env="FLASK_HOST", default="http://localhost")
+    flask_port: int = Field(env="FLASK_PORT", default=5000)
+
     @property
     def es_url(self):
         return f"{self.es_host}:{self.es_port}"
@@ -22,6 +25,10 @@ class Settings(BaseSettings):
     @property
     def fastapi_url(self):
         return f"{self.fastapi_host}:{self.fastapi_port}"
+
+    @property
+    def flask_url(self):
+        return f"{self.flask_host}:{self.flask_port}"
 
 
 settings = Settings()
