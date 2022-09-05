@@ -20,7 +20,7 @@ async def test_logout_v1(make_request):
         f"{settings.flask_url}/users/v1/login",
         json={"email": email, "password": "password_test_user"},
     )
-    access_token = login_response.body.get('access_token')
+    access_token = login_response.body.get("access_token")
 
     # act
     logout_response = await make_request(

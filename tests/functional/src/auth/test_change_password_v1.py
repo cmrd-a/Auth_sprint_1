@@ -86,7 +86,7 @@ async def test_change_password_v1__refresh_access_token__return_status_401(make_
         f"{settings.flask_url}/users/v1/refresh",
         headers={"authorization": f"Bearer {login_response.body.get('refresh_token')}"},
     )
-    access_token = refresh_response.body.get('access_token')
+    access_token = refresh_response.body.get("access_token")
 
     # act
     change_password_response = await make_request(

@@ -20,7 +20,7 @@ async def test_refresh_v1(make_request):
         f"{settings.flask_url}/users/v1/login",
         json={"email": email, "password": "password_test_user"},
     )
-    refresh_token = login_response.body.get('refresh_token')
+    refresh_token = login_response.body.get("refresh_token")
 
     # act
     refresh_response = await make_request(
