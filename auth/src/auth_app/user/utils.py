@@ -4,7 +4,7 @@ from http import HTTPStatus
 from apiflask import abort
 from flask_jwt_extended import verify_jwt_in_request, get_jwt
 
-from Auth.extensions import redis_client, jwt
+from auth_app.extensions import redis_client, jwt
 
 
 @jwt.token_in_blocklist_loader

@@ -1,15 +1,15 @@
 from apiflask import APIFlask
 
-from Auth import admin, commands, user
-from Auth.extensions import db, jwt, redis_client
+from auth_app import admin, commands, user
+from auth_app.extensions import db, jwt, redis_client
 
 
-def create_app(config_object="Auth.config.config"):
+def create_app(config_object="auth_app.config.config"):
     app = APIFlask(
-        __name__, title="Auth API", root_path="/auth", spec_path="/auth/openapi.json", docs_path="/auth/docs"
+        __name__, title="auth_app API", root_path="/auth", spec_path="/auth/openapi.json", docs_path="/auth/docs"
     )
     app.config.from_object(config_object)
-
+    app.security_schemes = {"BearerAuth": {"scheme": "bearer", "type": "http"}}  # equals to use config SECURITY_SCHEMES
     register_extensions(app)
     register_blueprints(app)
     register_commands(app)

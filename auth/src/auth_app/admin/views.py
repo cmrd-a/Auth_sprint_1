@@ -2,9 +2,10 @@ from http import HTTPStatus
 
 from apiflask import APIBlueprint, abort
 from flask import jsonify, Response
+from flask_jwt_extended import jwt_required
 from sqlalchemy.exc import IntegrityError
 
-from Auth.admin.schemas import (
+from auth_app.admin.schemas import (
     CreateRoleIn,
     CreateRoleOut,
     DeleteRoleIn,
@@ -12,9 +13,9 @@ from Auth.admin.schemas import (
     GetAllRolesOut,
     SetUserRoleIn,
 )
-from Auth.db.models import Role, Permission, User
-from Auth.extensions import db
-from Auth.user.utils import permissions_required
+from auth_app.db.models import Role, Permission, User
+from auth_app.extensions import db
+from auth_app.user.utils import permissions_required
 
 blueprint = APIBlueprint("admin", __name__, url_prefix="/auth/admin")
 
@@ -23,6 +24,8 @@ blueprint = APIBlueprint("admin", __name__, url_prefix="/auth/admin")
 @blueprint.post("/v1/create-role")
 @blueprint.input(CreateRoleIn)
 @blueprint.output(CreateRoleOut)
+@jwt_required()
+@blueprint.doc(security="BearerAuth")
 def create_role(body):
     role_name = body["role_name"]
     role = Role(name=role_name)
@@ -42,6 +45,8 @@ def create_role(body):
 @permissions_required(["manage_users"])
 @blueprint.delete("/v1/delete-role")
 @blueprint.input(DeleteRoleIn)
+@jwt_required()
+@blueprint.doc(security="BearerAuth")
 def delete_role(body):
     role_name = body["role_name"]
 
@@ -62,6 +67,8 @@ def delete_role(body):
 @permissions_required(["manage_users"])
 @blueprint.post("/v1/change-role")
 @blueprint.input(ChangeRoleIn)
+@jwt_required()
+@blueprint.doc(security="BearerAuth")
 def change_role(body):
     old_role_name = body["old_role_name"]
     new_role_name = body["new_role_name"]
@@ -90,6 +97,8 @@ def change_role(body):
 
 @permissions_required(["manage_users"])
 @blueprint.get("/v1/get-all-roles")
+@blueprint.doc(security="BearerAuth")
+@jwt_required()
 @blueprint.output(GetAllRolesOut(many=True))
 def get_all_roles():
     response = []
@@ -103,6 +112,8 @@ def get_all_roles():
 @permissions_required(["manage_users"])
 @blueprint.post("/v1/set-user-role")
 @blueprint.input(SetUserRoleIn)
+@jwt_required()
+@blueprint.doc(security="BearerAuth")
 def set_user_role(body):
 
     user_email = body["email"]

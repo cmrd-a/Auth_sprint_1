@@ -5,16 +5,13 @@ from apiflask.validators import Length
 password_validator = Length(8, 128)
 
 
-class AccessToken(Schema):
-    access_token = String()
-
-
 class EmailPasswordIn(Schema):
     email = Email(required=True)
     password = String(required=True, validate=password_validator)
 
 
-class LoginOut(AccessToken):
+class LoginRefreshOut(Schema):
+    access_token = String()
     refresh_token = String()
     user_role = String()
     access_expires = String()

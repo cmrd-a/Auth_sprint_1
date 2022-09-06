@@ -1,7 +1,7 @@
 import click
 
-from Auth.db.models import Permission, Role, User
-from Auth.extensions import db
+from auth_app.db.models import Permission, Role, User
+from auth_app.extensions import db
 
 
 @click.command()
