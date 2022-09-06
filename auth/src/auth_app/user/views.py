@@ -101,9 +101,14 @@ def change_password(body):
 
 @blueprint.get("/v1/login-history")
 @jwt_required()
+@blueprint.input(LoginHistoryIn, location="query")
 @blueprint.output(LoginHistoryOut(many=True))
 @blueprint.doc(security="BearerAuth")
-def login_history():
+def login_history(query):
     email = get_jwt_identity()
-    result = LoginHistory.query.filter_by(user=User.query.filter_by(email=email).first()).all()
+    result = (
+        LoginHistory.query.filter_by(user=User.query.filter_by(email=email).first())
+        .paginate(query["page_number"], query["page_size"], False)
+        .items
+    )
     return jsonify([{"ip_address": str(r.ip_address), "login_time": str(r.login_time)} for r in result])
