@@ -9,7 +9,7 @@ def create_app(config_object="auth_app.config.config"):
         __name__, title="auth_app API", root_path="/auth", spec_path="/auth/openapi.json", docs_path="/auth/docs"
     )
     app.config.from_object(config_object)
-    app.security_schemes = {"BearerAuth": {"scheme": "bearer", "type": "http"}}  # equals to use config SECURITY_SCHEMES
+    app.security_schemes = {"BearerAuth": {"scheme": "bearer", "type": "http"}}
     register_extensions(app)
     register_blueprints(app)
     register_commands(app)

@@ -13,8 +13,6 @@ class EmailPasswordIn(Schema):
 class LoginRefreshOut(Schema):
     access_token = String()
     refresh_token = String()
-    user_role = String()
-    access_expires = String()
 
 
 class ChangePasswordIn(Schema):

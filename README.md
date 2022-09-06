@@ -23,7 +23,8 @@ API доступно по адресу: http://localhost/api/openapi.
  2. `make tests_up`
 
 # Auth. Система авторизации
-
+`alembic revision -m "init tables"`
+`alembic upgrade head`
 http://localhost/auth/docs
 
 ### Команды для разработки:

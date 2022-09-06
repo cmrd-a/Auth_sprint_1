@@ -6,7 +6,7 @@ from flask_jwt_extended import create_access_token, create_refresh_token, jwt_re
 
 from auth_app.db.models import Role, User, LoginHistory
 from auth_app.extensions import db, redis_client
-from auth_app.user.schemas import LoginRefreshOut, EmailPasswordIn, ChangePasswordIn, LoginHistoryOut
+from auth_app.user.schemas import LoginRefreshOut, EmailPasswordIn, ChangePasswordIn, LoginHistoryOut, LoginHistoryIn
 
 blueprint = APIBlueprint("user", __name__, url_prefix="/auth/users")
 
@@ -36,15 +36,15 @@ def login(body):
         db.session.add(LoginHistory(user=user, ip_address=request.remote_addr))
         db.session.commit()
         access_token = create_access_token(
-            identity=email, fresh=True, additional_claims={"permissions": [p.name for p in user.role.permissions]}
+            identity=email,
+            fresh=True,
+            additional_claims={
+                "permissions": [p.name for p in user.role.permissions],
+                "role": user.role.name,
+            },
         )
         refresh_token = create_refresh_token(identity=email)
-        return jsonify(
-            access_token=access_token,
-            refresh_token=refresh_token,
-            access_expires=str(current_app.config["JWT_ACCESS_TOKEN_EXPIRES"]),
-            user_role=user.role.name,
-        )
+        return jsonify(access_token=access_token, refresh_token=refresh_token)
 
     return abort(HTTPStatus.UNAUTHORIZED, message="Bad username or password")
 
@@ -58,16 +58,16 @@ def refresh():
     email = get_jwt_identity()
     user = User.query.filter_by(email=email).first()
     new_access_token = create_access_token(
-        identity=email, fresh=False, additional_claims={"permissions": [p.name for p in user.role.permissions]}
+        identity=email,
+        fresh=False,
+        additional_claims={
+            "permissions": [p.name for p in user.role.permissions],
+            "role": user.role.name,
+        },
     )
     new_refresh_token = create_refresh_token(identity=email)
     redis_client.set(refresh_token["jti"], "", ex=current_app.config["JWT_REFRESH_TOKEN_EXPIRES"])
-    return jsonify(
-        access_token=new_access_token,
-        refresh_token=new_refresh_token,
-        access_expires=str(current_app.config["JWT_ACCESS_TOKEN_EXPIRES"]),
-        user_role=user.role.name,
-    )
+    return jsonify(access_token=new_access_token, refresh_token=new_refresh_token)
 
 
 @blueprint.delete("/v1/logout")
