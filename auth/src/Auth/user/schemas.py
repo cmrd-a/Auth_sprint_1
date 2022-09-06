@@ -1,5 +1,5 @@
 from apiflask import Schema
-from apiflask.fields import String, Email, DateTime, IP
+from apiflask.fields import String, Email, DateTime, IP, Integer
 from apiflask.validators import Length
 
 password_validator = Length(8, 128)
@@ -28,3 +28,8 @@ class ChangePasswordIn(Schema):
 class LoginHistoryOut(Schema):
     ip_address = IP()
     login_time = DateTime()
+
+
+class LoginHistoryIn(Schema):
+    page_number = Integer(load_default=1)
+    page_size = Integer(load_default=100)

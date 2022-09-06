@@ -6,7 +6,7 @@ from flask_jwt_extended import create_access_token, create_refresh_token, jwt_re
 
 from Auth.db.models import Role, User, LoginHistory
 from Auth.extensions import db, redis_client
-from Auth.user.schemas import LoginOut, EmailPasswordIn, ChangePasswordIn, AccessToken, LoginHistoryOut
+from Auth.user.schemas import LoginOut, EmailPasswordIn, ChangePasswordIn, AccessToken, LoginHistoryOut, LoginHistoryIn
 
 blueprint = APIBlueprint("user", __name__, url_prefix="/auth/users")
 
@@ -87,8 +87,13 @@ def change_password(body):
 
 @blueprint.get("/v1/login-history")
 @jwt_required()
+@blueprint.input(LoginHistoryIn, location="query")
 @blueprint.output(LoginHistoryOut(many=True))
-def login_history():
+def login_history(query):
     email = get_jwt_identity()
-    result = LoginHistory.query.filter_by(user=User.query.filter_by(email=email).first()).all()
+    result = (
+        LoginHistory.query.filter_by(user=User.query.filter_by(email=email).first())
+        .paginate(query["page_number"], query["page_size"], False)
+        .items
+    )
     return jsonify([{"ip_address": str(r.ip_address), "login_time": str(r.login_time)} for r in result])
